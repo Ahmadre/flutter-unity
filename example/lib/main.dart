@@ -37,8 +37,7 @@ class _HomePageState extends State<HomePage> {
       body: Center(
         child: RaisedButton(
           onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => UnityViewPage()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => UnityViewPage()));
           },
           child: Text('Test'),
         ),
@@ -54,6 +53,7 @@ class UnityViewPage extends StatefulWidget {
 
 class _UnityViewPageState extends State<UnityViewPage> {
   UnityViewController unityViewController;
+  double _sliderValue;
 
   @override
   void initState() {
@@ -71,10 +71,51 @@ class _UnityViewPageState extends State<UnityViewPage> {
       appBar: AppBar(
         title: const Text('Plugin example app'),
       ),
-      body: UnityView(
-        onCreated: onUnityViewCreated,
-        onReattached: onUnityViewReattached,
-        onMessage: onUnityViewMessage,
+      body: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        elevation: 10,
+        child: Stack(
+          children: [
+            UnityView(
+              onCreated: onUnityViewCreated,
+              onReattached: onUnityViewReattached,
+              onMessage: onUnityViewMessage,
+            ),
+            Positioned(
+              bottom: 20,
+              left: 20,
+              right: 20,
+              child: Card(
+                child: Column(
+                  children: [
+                    const Text(
+                      'Rotation Speed:',
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Slider.adaptive(
+                      value: _sliderValue,
+                      onChanged: (val) {
+                        setState(() {
+                          _sliderValue = val;
+                        });
+                        unityViewController.send(
+                          'Model3',
+                          'SetRotationSpeed',
+                          '${val.toInt()}',
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -82,17 +123,16 @@ class _UnityViewPageState extends State<UnityViewPage> {
   void onUnityViewCreated(UnityViewController controller) {
     print('onUnityViewCreated');
 
-    unityViewController = controller;
-
-    controller.send(
-      'Cube',
-      'SetRotationSpeed',
-      '30',
-    );
+    setState(() {
+      unityViewController = controller;
+    });
   }
 
   void onUnityViewReattached(UnityViewController controller) {
     print('onUnityViewReattached');
+    setState(() {
+      unityViewController = controller;
+    });
   }
 
   void onUnityViewMessage(UnityViewController controller, String message) {

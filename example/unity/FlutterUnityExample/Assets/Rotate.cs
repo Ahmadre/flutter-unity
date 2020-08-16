@@ -24,7 +24,7 @@ public class Rotate : MonoBehaviour
 
         float value = float.Parse(message.data);
 
-        v3 = new Vector3(value, value, value);
+        v3 = new Vector3(0, value, 0);
 
         message.data = "SetRotationSpeed: " + value;
 

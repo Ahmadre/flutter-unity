@@ -15,9 +15,10 @@ public class Init : MonoBehaviour
 
     }
 
-    public void SetCarColor(string colorString)
+    public void SetCarColor(string data)
     {
-        string[] part = colorString.Split(',');
+        FlutterUnityPlugin.Message message = FlutterUnityPlugin.Messages.Receive(data);
+        string[] part = message.data.Split(',');
         Color color = new Color(float.Parse(part[0]), float.Parse(part[1]), float.Parse(part[2]));
         body.GetComponent<Renderer>().material.color = color;
     }

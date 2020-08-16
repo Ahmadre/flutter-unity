@@ -15,9 +15,10 @@ public class BackgroundControl : MonoBehaviour
     {
     }
 
-    public void SetBackgroundColor(string rgbString)
+    public void SetBackgroundColor(string data)
     {
-        string[] part = rgbString.Split(',');
+        FlutterUnityPlugin.Message message = FlutterUnityPlugin.Messages.Receive(data);
+        string[] part = message.data.Split(',');
         Color color = new Color(float.Parse(part[0]), float.Parse(part[1]), float.Parse(part[2]));
         cam.backgroundColor = color;
     }

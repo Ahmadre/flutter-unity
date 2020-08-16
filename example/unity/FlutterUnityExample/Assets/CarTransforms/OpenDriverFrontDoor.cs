@@ -101,9 +101,10 @@ public class OpenDriverFrontDoor : MonoBehaviour
     }
 
     /// Flutter Bridging method to animate openings (open/close)
-    public void DoorOpened(string state)
+    public void DoorOpened(string data)
     {
-        string[] part = state.Split(':');
+        FlutterUnityPlugin.Message message = FlutterUnityPlugin.Messages.Receive(data);
+        string[] part = message.data.Split(':');
 
         switch (part[0])
         {
