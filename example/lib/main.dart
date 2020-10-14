@@ -47,6 +47,13 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+class Vehicle {
+  static final String model3 = 'model3';
+  static final String models = 'models';
+  static final String modelx = 'modelx';
+  static final String modely = 'modely';
+}
+
 class UnityViewPage extends StatefulWidget {
   @override
   _UnityViewPageState createState() => _UnityViewPageState();
@@ -57,6 +64,7 @@ class _UnityViewPageState extends State<UnityViewPage> {
   double _sliderValue = 0.0;
   double _speed = 0.0;
   bool isDarkTheme = true;
+  String selectedModel = 'model3';
 
   @override
   void initState() {
@@ -73,8 +81,8 @@ class _UnityViewPageState extends State<UnityViewPage> {
     return Scaffold(
       backgroundColor: isDarkTheme ? Color.fromRGBO(33, 33, 33, 1) : Color.fromRGBO(245, 245, 245, 1),
       appBar: AppBar(
-        title: const Text('Model 3'),
-        /* actions: [
+        title: Text(selectedModel?.toUpperCase() ?? ''),
+        actions: [
           IconButton(
             icon: const Icon(Icons.color_lens_outlined),
             onPressed: () {
@@ -99,7 +107,49 @@ class _UnityViewPageState extends State<UnityViewPage> {
               }
             },
           ),
-        ], */
+          PopupMenuButton<String>(
+            onSelected: (String result) {
+              setState(() {
+                selectedModel = result;
+                unityViewController.send(
+                  'Loader',
+                  'loadScene',
+                  selectedModel,
+                );
+              });
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              PopupMenuItem<String>(
+                value: Vehicle.model3,
+                child: ListTile(
+                  leading: Image.asset(
+                    'assets/images/model3.png',
+                    width: 50,
+                  ),
+                  title: Text('Model 3'),
+                ),
+              ),
+              PopupMenuItem<String>(
+                value: Vehicle.models,
+                child: ListTile(
+                  leading: Image.asset(
+                    'assets/images/models2.png',
+                    width: 50,
+                  ),
+                  title: Text('Model S2'),
+                ),
+              ),
+              /* const PopupMenuItem<Vehicle>(
+                value: Vehicle.selfStarter,
+                child: Text('Being a self-starter'),
+              ),
+              const PopupMenuItem<Vehicle>(
+                value: Vehicle.tradingCharter,
+                child: Text('Placed in charge of trading charter'),
+              ), */
+            ],
+          )
+        ],
       ),
       body: Card(
         color: isDarkTheme ? Color.fromRGBO(33, 33, 33, 1) : Color.fromRGBO(245, 245, 245, 1),
@@ -113,10 +163,42 @@ class _UnityViewPageState extends State<UnityViewPage> {
             children: [
               AspectRatio(
                 aspectRatio: 1.66,
-                child: UnityView(
-                  onCreated: onUnityViewCreated,
-                  onReattached: onUnityViewReattached,
-                  onMessage: onUnityViewMessage,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  switchInCurve: Curves.elasticOut,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      AnimatedOpacity(
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.decelerate,
+                        opacity: selectedModel != null || (selectedModel?.isNotEmpty ?? false) ? 1.0 : 0.0,
+                        child: UnityView(
+                          onCreated: onUnityViewCreated,
+                          onReattached: onUnityViewReattached,
+                          onMessage: onUnityViewMessage,
+                        ),
+                      ),
+                      if (selectedModel == null || (selectedModel?.isEmpty ?? false))
+                        Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.info_outline,
+                                color: Colors.white,
+                              ),
+                              Text(
+                                'Choose a Model',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
               Card(
@@ -140,7 +222,7 @@ class _UnityViewPageState extends State<UnityViewPage> {
                           _sliderValue = val;
                         });
                         unityViewController.send(
-                          'model3',
+                          'model',
                           'SetRotationSpeedY',
                           '$val',
                         );
@@ -170,7 +252,7 @@ class _UnityViewPageState extends State<UnityViewPage> {
                           _speed = val;
                         });
                         unityViewController.send(
-                          'model3',
+                          'model',
                           'SetCarSpeed',
                           '${val.toInt()}',
                         );
@@ -187,7 +269,7 @@ class _UnityViewPageState extends State<UnityViewPage> {
                       child: Text('Fahrertür öffnen'),
                       onPressed: () {
                         unityViewController.send(
-                          'model3',
+                          'model',
                           'DoorOpened',
                           'driverfrontdoor:true',
                         );
@@ -197,7 +279,7 @@ class _UnityViewPageState extends State<UnityViewPage> {
                       child: Text('Fahrertür schließen'),
                       onPressed: () {
                         unityViewController.send(
-                          'model3',
+                          'model',
                           'DoorOpened',
                           'driverfrontdoor:false',
                         );
@@ -207,7 +289,7 @@ class _UnityViewPageState extends State<UnityViewPage> {
                       child: Text('Hintere Fahrertür öffnen'),
                       onPressed: () {
                         unityViewController.send(
-                          'model3',
+                          'model',
                           'DoorOpened',
                           'driverreardoor:true',
                         );
@@ -217,7 +299,7 @@ class _UnityViewPageState extends State<UnityViewPage> {
                       child: Text('Hintere Fahrertür schließen'),
                       onPressed: () {
                         unityViewController.send(
-                          'model3',
+                          'model',
                           'DoorOpened',
                           'driverreardoor:false',
                         );
@@ -227,7 +309,7 @@ class _UnityViewPageState extends State<UnityViewPage> {
                       child: Text('Beifahrertür öffnen'),
                       onPressed: () {
                         unityViewController.send(
-                          'model3',
+                          'model',
                           'DoorOpened',
                           'passengerfrontdoor:true',
                         );
@@ -237,7 +319,7 @@ class _UnityViewPageState extends State<UnityViewPage> {
                       child: Text('Beifahrertür schließen'),
                       onPressed: () {
                         unityViewController.send(
-                          'model3',
+                          'model',
                           'DoorOpened',
                           'passengerfrontdoor:false',
                         );
@@ -247,7 +329,7 @@ class _UnityViewPageState extends State<UnityViewPage> {
                       child: Text('Hintere Beifahrertür öffnen'),
                       onPressed: () {
                         unityViewController.send(
-                          'model3',
+                          'model',
                           'DoorOpened',
                           'passengerreardoor:true',
                         );
@@ -257,7 +339,7 @@ class _UnityViewPageState extends State<UnityViewPage> {
                       child: Text('Hintere Beifahrertür schließen'),
                       onPressed: () {
                         unityViewController.send(
-                          'model3',
+                          'model',
                           'DoorOpened',
                           'passengerreardoor:false',
                         );
@@ -267,7 +349,7 @@ class _UnityViewPageState extends State<UnityViewPage> {
                       child: Text('Trunk öffnen'),
                       onPressed: () {
                         unityViewController.send(
-                          'model3',
+                          'model',
                           'DoorOpened',
                           'trunk:true',
                         );
@@ -277,7 +359,7 @@ class _UnityViewPageState extends State<UnityViewPage> {
                       child: Text('Trunk schließen'),
                       onPressed: () {
                         unityViewController.send(
-                          'model3',
+                          'model',
                           'DoorOpened',
                           'trunk:false',
                         );
@@ -287,7 +369,7 @@ class _UnityViewPageState extends State<UnityViewPage> {
                       child: Text('Frunk öffnen'),
                       onPressed: () {
                         unityViewController.send(
-                          'model3',
+                          'model',
                           'DoorOpened',
                           'frunk:true',
                         );
@@ -297,7 +379,7 @@ class _UnityViewPageState extends State<UnityViewPage> {
                       child: Text('Frunk schließen'),
                       onPressed: () {
                         unityViewController.send(
-                          'model3',
+                          'model',
                           'DoorOpened',
                           'frunk:false',
                         );
