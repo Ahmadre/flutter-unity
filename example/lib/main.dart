@@ -122,9 +122,12 @@ class _UnityViewPageState extends State<UnityViewPage> {
               PopupMenuItem<String>(
                 value: Vehicle.model3,
                 child: ListTile(
-                  leading: Image.asset(
-                    'assets/images/model3.png',
-                    width: 50,
+                  leading: Transform.scale(
+                    scale: 1.3,
+                    child: Image.asset(
+                      'assets/images/model3.png',
+                      width: 50,
+                    ),
                   ),
                   title: Text('Model 3'),
                 ),
@@ -132,9 +135,12 @@ class _UnityViewPageState extends State<UnityViewPage> {
               PopupMenuItem<String>(
                 value: Vehicle.models,
                 child: ListTile(
-                  leading: Image.asset(
-                    'assets/images/models2.png',
-                    width: 50,
+                  leading: Transform.scale(
+                    scale: 2.0,
+                    child: Image.asset(
+                      'assets/images/models2.png',
+                      width: 50,
+                    ),
                   ),
                   title: Text('Model S2'),
                 ),
