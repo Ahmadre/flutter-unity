@@ -60,11 +60,18 @@ class UnityViewPage extends StatefulWidget {
 }
 
 class _UnityViewPageState extends State<UnityViewPage> {
+  PageController pageController = PageController();
+
   UnityViewController unityViewController;
   double _sliderValue = 0.0;
   double _speed = 0.0;
   bool isDarkTheme = true;
   String selectedModel = 'model3';
+  bool model3initialized = false;
+  bool modelsinitialized = false;
+  bool modelxinitialized = false;
+  bool modelyinitialized = false;
+  bool isCharging = false;
 
   @override
   void initState() {
@@ -88,7 +95,7 @@ class _UnityViewPageState extends State<UnityViewPage> {
             onPressed: () {
               if (isDarkTheme) {
                 unityViewController.send(
-                  'Main Camera',
+                  'FrontCamera',
                   'SetBackgroundColor',
                   '245.0,245.0,245.0',
                 );
@@ -97,7 +104,7 @@ class _UnityViewPageState extends State<UnityViewPage> {
                 });
               } else {
                 unityViewController.send(
-                  'Main Camera',
+                  'FrontCamera',
                   'SetBackgroundColor',
                   '33.0,33.0,33.0',
                 );
@@ -107,296 +114,978 @@ class _UnityViewPageState extends State<UnityViewPage> {
               }
             },
           ),
-          PopupMenuButton<String>(
-            onSelected: (String result) {
-              setState(() {
-                selectedModel = result;
-                unityViewController.send(
-                  'Loader',
-                  'loadScene',
-                  selectedModel,
-                );
-              });
-            },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-              PopupMenuItem<String>(
-                value: Vehicle.model3,
-                child: ListTile(
-                  leading: Transform.scale(
-                    scale: 1.3,
-                    child: Image.asset(
-                      'assets/images/model3.png',
-                      width: 50,
-                    ),
-                  ),
-                  title: Text('Model 3'),
-                ),
-              ),
-              PopupMenuItem<String>(
-                value: Vehicle.models,
-                child: ListTile(
-                  leading: Transform.scale(
-                    scale: 2.0,
-                    child: Image.asset(
-                      'assets/images/models2.png',
-                      width: 50,
-                    ),
-                  ),
-                  title: Text('Model S2'),
-                ),
-              ),
-              /* const PopupMenuItem<Vehicle>(
-                value: Vehicle.selfStarter,
-                child: Text('Being a self-starter'),
-              ),
-              const PopupMenuItem<Vehicle>(
-                value: Vehicle.tradingCharter,
-                child: Text('Placed in charge of trading charter'),
-              ), */
-            ],
-          )
         ],
       ),
-      body: Card(
-        color: isDarkTheme ? Color.fromRGBO(33, 33, 33, 1) : Color.fromRGBO(245, 245, 245, 1),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        elevation: 10,
-        child: SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
-          child: Column(
-            children: [
-              AspectRatio(
-                aspectRatio: 1.66,
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 250),
-                  switchInCurve: Curves.elasticOut,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      AnimatedOpacity(
-                        duration: const Duration(milliseconds: 250),
-                        curve: Curves.decelerate,
-                        opacity: selectedModel != null || (selectedModel?.isNotEmpty ?? false) ? 1.0 : 0.0,
-                        child: UnityView(
-                          onCreated: onUnityViewCreated,
-                          onReattached: onUnityViewReattached,
-                          onMessage: onUnityViewMessage,
-                        ),
-                      ),
-                      if (selectedModel == null || (selectedModel?.isEmpty ?? false))
-                        Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.info_outline,
-                                color: Colors.white,
-                              ),
-                              Text(
-                                'Choose a Model',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-              Card(
-                child: Column(
-                  children: [
-                    const Text(
-                      'Rotation Speed:',
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Slider.adaptive(
-                      min: -10.0,
-                      max: 10.0,
-                      divisions: 20,
-                      label: _sliderValue.toInt().toString(),
-                      value: _sliderValue,
+      body: PageView(
+        pageSnapping: true,
+        onPageChanged: (i) {
+          switch (i) {
+            case 0:
+              setState(() {
+                model3initialized = true;
+                selectedModel = 'model3';
+              });
+              break;
+            case 1:
+              setState(() {
+                modelsinitialized = true;
+                selectedModel = 'models';
+              });
+              break;
+            case 2:
+              setState(() {
+                modelxinitialized = true;
+                selectedModel = 'modelx';
+              });
+              break;
+            case 3:
+              setState(() {
+                modelyinitialized = true;
+                selectedModel = 'modely';
+              });
+              break;
+            default:
+              setState(() {
+                model3initialized = true;
+                selectedModel = 'model3';
+              });
+              break;
+          }
+        },
+        controller: pageController,
+        children: [
+          /// model 3
+          Card(
+            color: isDarkTheme ? Color.fromRGBO(33, 33, 33, 1) : Color.fromRGBO(245, 245, 245, 1),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            elevation: 10,
+            child: SingleChildScrollView(
+              physics: BouncingScrollPhysics(),
+              child: Column(
+                children: [
+                  Card(
+                    child: SwitchListTile.adaptive(
+                      title: Text('isCharging'),
+                      secondary: isCharging
+                          ? Icon(
+                              Icons.battery_charging_full,
+                              color: Colors.green.shade500,
+                            )
+                          : Icon(Icons.battery_full),
+                      value: isCharging,
                       onChanged: (val) {
                         setState(() {
-                          _sliderValue = val;
+                          isCharging = val;
                         });
                         unityViewController.send(
-                          'model',
-                          'SetRotationSpeedY',
+                          'FrontCamera',
+                          'IsCharging',
                           '$val',
                         );
                       },
                     ),
-                  ],
-                ),
+                  ),
+                  AspectRatio(
+                    aspectRatio: 1.66,
+                    child: UnityView(
+                      onCreated: onUnityViewCreated,
+                      onReattached: onUnityViewReattached,
+                      onMessage: onUnityViewMessage,
+                    ),
+                  ),
+                  Card(
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Rotation Speed:',
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Slider.adaptive(
+                          min: -10.0,
+                          max: 10.0,
+                          divisions: 20,
+                          label: _sliderValue.toInt().toString(),
+                          value: _sliderValue,
+                          onChanged: (val) {
+                            setState(() {
+                              _sliderValue = val;
+                            });
+                            unityViewController.send(
+                              'model3',
+                              'SetRotationSpeedY',
+                              '$val',
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  Card(
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Car Speed:',
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Slider.adaptive(
+                          value: _speed,
+                          min: 0,
+                          max: 10,
+                          divisions: 10,
+                          label: _speed.toString(),
+                          onChanged: (val) {
+                            setState(() {
+                              _speed = val;
+                            });
+                            unityViewController.send(
+                              'model3',
+                              'SetCarSpeed',
+                              '${val.toInt()}',
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  Card(
+                    color: isDarkTheme ? Color.fromRGBO(33, 33, 33, 1) : Color.fromRGBO(245, 245, 245, 1),
+                    child: Wrap(
+                      children: [
+                        RaisedButton(
+                          child: Text('Fahrertür öffnen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'model3',
+                              'DoorOpened',
+                              'driverfrontdoor:true',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Fahrertür schließen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'model3',
+                              'DoorOpened',
+                              'driverfrontdoor:false',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Hintere Fahrertür öffnen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'model3',
+                              'DoorOpened',
+                              'driverreardoor:true',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Hintere Fahrertür schließen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'model3',
+                              'DoorOpened',
+                              'driverreardoor:false',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Beifahrertür öffnen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'model3',
+                              'DoorOpened',
+                              'passengerfrontdoor:true',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Beifahrertür schließen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'model3',
+                              'DoorOpened',
+                              'passengerfrontdoor:false',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Hintere Beifahrertür öffnen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'model3',
+                              'DoorOpened',
+                              'passengerreardoor:true',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Hintere Beifahrertür schließen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'model3',
+                              'DoorOpened',
+                              'passengerreardoor:false',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Trunk öffnen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'model3',
+                              'DoorOpened',
+                              'trunk:true',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Trunk schließen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'model3',
+                              'DoorOpened',
+                              'trunk:false',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Frunk öffnen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'model3',
+                              'DoorOpened',
+                              'frunk:true',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Frunk schließen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'model3',
+                              'DoorOpened',
+                              'frunk:false',
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              Card(
-                child: Column(
-                  children: [
-                    const Text(
-                      'Car Speed:',
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Slider.adaptive(
-                      value: _speed,
-                      min: 0,
-                      max: 10,
-                      divisions: 10,
-                      label: _speed.toString(),
+            ),
+          ),
+
+          /// model s
+          Card(
+            color: isDarkTheme ? Color.fromRGBO(33, 33, 33, 1) : Color.fromRGBO(245, 245, 245, 1),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            elevation: 10,
+            child: SingleChildScrollView(
+              physics: BouncingScrollPhysics(),
+              child: Column(
+                children: [
+                  Card(
+                    child: SwitchListTile.adaptive(
+                      title: Text('isCharging'),
+                      secondary: isCharging
+                          ? Icon(
+                              Icons.battery_charging_full,
+                              color: Colors.green.shade500,
+                            )
+                          : Icon(Icons.battery_full),
+                      value: isCharging,
                       onChanged: (val) {
                         setState(() {
-                          _speed = val;
+                          isCharging = val;
                         });
                         unityViewController.send(
-                          'model',
-                          'SetCarSpeed',
-                          '${val.toInt()}',
+                          'FrontCamera',
+                          'IsCharging',
+                          '$val',
                         );
                       },
                     ),
-                  ],
-                ),
+                  ),
+                  AspectRatio(
+                    aspectRatio: 1.66,
+                    child: UnityView(
+                      onCreated: onUnityViewCreated,
+                      onReattached: onUnityViewReattached,
+                      onMessage: onUnityViewMessage,
+                    ),
+                  ),
+                  Card(
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Rotation Speed:',
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Slider.adaptive(
+                          min: -10.0,
+                          max: 10.0,
+                          divisions: 20,
+                          label: _sliderValue.toInt().toString(),
+                          value: _sliderValue,
+                          onChanged: (val) {
+                            setState(() {
+                              _sliderValue = val;
+                            });
+                            unityViewController.send(
+                              'models',
+                              'SetRotationSpeedY',
+                              '$val',
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  Card(
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Car Speed:',
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Slider.adaptive(
+                          value: _speed,
+                          min: 0,
+                          max: 10,
+                          divisions: 10,
+                          label: _speed.toString(),
+                          onChanged: (val) {
+                            setState(() {
+                              _speed = val;
+                            });
+                            unityViewController.send(
+                              'models',
+                              'SetCarSpeed',
+                              '${val.toInt()}',
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  Card(
+                    color: isDarkTheme ? Color.fromRGBO(33, 33, 33, 1) : Color.fromRGBO(245, 245, 245, 1),
+                    child: Wrap(
+                      children: [
+                        RaisedButton(
+                          child: Text('Fahrertür öffnen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'models',
+                              'DoorOpened',
+                              'driverfrontdoor:true',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Fahrertür schließen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'models',
+                              'DoorOpened',
+                              'driverfrontdoor:false',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Hintere Fahrertür öffnen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'models',
+                              'DoorOpened',
+                              'driverreardoor:true',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Hintere Fahrertür schließen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'models',
+                              'DoorOpened',
+                              'driverreardoor:false',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Beifahrertür öffnen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'models',
+                              'DoorOpened',
+                              'passengerfrontdoor:true',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Beifahrertür schließen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'models',
+                              'DoorOpened',
+                              'passengerfrontdoor:false',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Hintere Beifahrertür öffnen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'models',
+                              'DoorOpened',
+                              'passengerreardoor:true',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Hintere Beifahrertür schließen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'models',
+                              'DoorOpened',
+                              'passengerreardoor:false',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Trunk öffnen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'models',
+                              'DoorOpened',
+                              'trunk:true',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Trunk schließen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'models',
+                              'DoorOpened',
+                              'trunk:false',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Frunk öffnen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'models',
+                              'DoorOpened',
+                              'frunk:true',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Frunk schließen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'models',
+                              'DoorOpened',
+                              'frunk:false',
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              Card(
-                color: isDarkTheme ? Color.fromRGBO(33, 33, 33, 1) : Color.fromRGBO(245, 245, 245, 1),
-                child: Wrap(
-                  children: [
-                    RaisedButton(
-                      child: Text('Fahrertür öffnen'),
-                      onPressed: () {
-                        unityViewController.send(
-                          'model',
-                          'DoorOpened',
-                          'driverfrontdoor:true',
-                        );
-                      },
-                    ),
-                    RaisedButton(
-                      child: Text('Fahrertür schließen'),
-                      onPressed: () {
-                        unityViewController.send(
-                          'model',
-                          'DoorOpened',
-                          'driverfrontdoor:false',
-                        );
-                      },
-                    ),
-                    RaisedButton(
-                      child: Text('Hintere Fahrertür öffnen'),
-                      onPressed: () {
-                        unityViewController.send(
-                          'model',
-                          'DoorOpened',
-                          'driverreardoor:true',
-                        );
-                      },
-                    ),
-                    RaisedButton(
-                      child: Text('Hintere Fahrertür schließen'),
-                      onPressed: () {
-                        unityViewController.send(
-                          'model',
-                          'DoorOpened',
-                          'driverreardoor:false',
-                        );
-                      },
-                    ),
-                    RaisedButton(
-                      child: Text('Beifahrertür öffnen'),
-                      onPressed: () {
-                        unityViewController.send(
-                          'model',
-                          'DoorOpened',
-                          'passengerfrontdoor:true',
-                        );
-                      },
-                    ),
-                    RaisedButton(
-                      child: Text('Beifahrertür schließen'),
-                      onPressed: () {
-                        unityViewController.send(
-                          'model',
-                          'DoorOpened',
-                          'passengerfrontdoor:false',
-                        );
-                      },
-                    ),
-                    RaisedButton(
-                      child: Text('Hintere Beifahrertür öffnen'),
-                      onPressed: () {
-                        unityViewController.send(
-                          'model',
-                          'DoorOpened',
-                          'passengerreardoor:true',
-                        );
-                      },
-                    ),
-                    RaisedButton(
-                      child: Text('Hintere Beifahrertür schließen'),
-                      onPressed: () {
-                        unityViewController.send(
-                          'model',
-                          'DoorOpened',
-                          'passengerreardoor:false',
-                        );
-                      },
-                    ),
-                    RaisedButton(
-                      child: Text('Trunk öffnen'),
-                      onPressed: () {
-                        unityViewController.send(
-                          'model',
-                          'DoorOpened',
-                          'trunk:true',
-                        );
-                      },
-                    ),
-                    RaisedButton(
-                      child: Text('Trunk schließen'),
-                      onPressed: () {
-                        unityViewController.send(
-                          'model',
-                          'DoorOpened',
-                          'trunk:false',
-                        );
-                      },
-                    ),
-                    RaisedButton(
-                      child: Text('Frunk öffnen'),
-                      onPressed: () {
-                        unityViewController.send(
-                          'model',
-                          'DoorOpened',
-                          'frunk:true',
-                        );
-                      },
-                    ),
-                    RaisedButton(
-                      child: Text('Frunk schließen'),
-                      onPressed: () {
-                        unityViewController.send(
-                          'model',
-                          'DoorOpened',
-                          'frunk:false',
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+
+          /// model x
+          Card(
+            color: isDarkTheme ? Color.fromRGBO(33, 33, 33, 1) : Color.fromRGBO(245, 245, 245, 1),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            elevation: 10,
+            child: SingleChildScrollView(
+              physics: BouncingScrollPhysics(),
+              child: Column(
+                children: [
+                  Card(
+                    child: SwitchListTile.adaptive(
+                      title: Text('isCharging'),
+                      secondary: isCharging
+                          ? Icon(
+                              Icons.battery_charging_full,
+                              color: Colors.green.shade500,
+                            )
+                          : Icon(Icons.battery_full),
+                      value: isCharging,
+                      onChanged: (val) {
+                        setState(() {
+                          isCharging = val;
+                        });
+                        unityViewController.send(
+                          'FrontCamera',
+                          'IsCharging',
+                          '$val',
+                        );
+                      },
+                    ),
+                  ),
+                  AspectRatio(
+                    aspectRatio: 1.66,
+                    child: UnityView(
+                      onCreated: onUnityViewCreated,
+                      onReattached: onUnityViewReattached,
+                      onMessage: onUnityViewMessage,
+                    ),
+                  ),
+                  Card(
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Rotation Speed:',
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Slider.adaptive(
+                          min: -10.0,
+                          max: 10.0,
+                          divisions: 20,
+                          label: _sliderValue.toInt().toString(),
+                          value: _sliderValue,
+                          onChanged: (val) {
+                            setState(() {
+                              _sliderValue = val;
+                            });
+                            unityViewController.send(
+                              'modelx',
+                              'SetRotationSpeedY',
+                              '$val',
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  Card(
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Car Speed:',
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Slider.adaptive(
+                          value: _speed,
+                          min: 0,
+                          max: 10,
+                          divisions: 10,
+                          label: _speed.toString(),
+                          onChanged: (val) {
+                            setState(() {
+                              _speed = val;
+                            });
+                            unityViewController.send(
+                              'modelx',
+                              'SetCarSpeed',
+                              '${val.toInt()}',
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  Card(
+                    color: isDarkTheme ? Color.fromRGBO(33, 33, 33, 1) : Color.fromRGBO(245, 245, 245, 1),
+                    child: Wrap(
+                      children: [
+                        RaisedButton(
+                          child: Text('Fahrertür öffnen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'modelx',
+                              'DoorOpened',
+                              'driverfrontdoor:true',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Fahrertür schließen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'modelx',
+                              'DoorOpened',
+                              'driverfrontdoor:false',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Hintere Fahrertür öffnen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'modelx',
+                              'DoorOpened',
+                              'driverreardoor:true',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Hintere Fahrertür schließen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'modelx',
+                              'DoorOpened',
+                              'driverreardoor:false',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Beifahrertür öffnen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'modelx',
+                              'DoorOpened',
+                              'passengerfrontdoor:true',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Beifahrertür schließen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'modelx',
+                              'DoorOpened',
+                              'passengerfrontdoor:false',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Hintere Beifahrertür öffnen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'modelx',
+                              'DoorOpened',
+                              'passengerreardoor:true',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Hintere Beifahrertür schließen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'modelx',
+                              'DoorOpened',
+                              'passengerreardoor:false',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Trunk öffnen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'modelx',
+                              'DoorOpened',
+                              'trunk:true',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Trunk schließen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'modelx',
+                              'DoorOpened',
+                              'trunk:false',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Frunk öffnen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'modelx',
+                              'DoorOpened',
+                              'frunk:true',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Frunk schließen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'modelx',
+                              'DoorOpened',
+                              'frunk:false',
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          /// model y
+          Card(
+            color: isDarkTheme ? Color.fromRGBO(33, 33, 33, 1) : Color.fromRGBO(245, 245, 245, 1),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            elevation: 10,
+            child: SingleChildScrollView(
+              physics: BouncingScrollPhysics(),
+              child: Column(
+                children: [
+                  Card(
+                    child: SwitchListTile.adaptive(
+                      title: Text('isCharging'),
+                      secondary: isCharging
+                          ? Icon(
+                              Icons.battery_charging_full,
+                              color: Colors.green.shade500,
+                            )
+                          : Icon(Icons.battery_full),
+                      value: isCharging,
+                      onChanged: (val) {
+                        setState(() {
+                          isCharging = val;
+                        });
+                        unityViewController.send(
+                          'FrontCamera',
+                          'IsCharging',
+                          '$val',
+                        );
+                      },
+                    ),
+                  ),
+                  AspectRatio(
+                    aspectRatio: 1.66,
+                    child: UnityView(
+                      onCreated: onUnityViewCreated,
+                      onReattached: onUnityViewReattached,
+                      onMessage: onUnityViewMessage,
+                    ),
+                  ),
+                  Card(
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Rotation Speed:',
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Slider.adaptive(
+                          min: -10.0,
+                          max: 10.0,
+                          divisions: 20,
+                          label: _sliderValue.toInt().toString(),
+                          value: _sliderValue,
+                          onChanged: (val) {
+                            setState(() {
+                              _sliderValue = val;
+                            });
+                            unityViewController.send(
+                              'modely',
+                              'SetRotationSpeedY',
+                              '$val',
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  Card(
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Car Speed:',
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Slider.adaptive(
+                          value: _speed,
+                          min: 0,
+                          max: 10,
+                          divisions: 10,
+                          label: _speed.toString(),
+                          onChanged: (val) {
+                            setState(() {
+                              _speed = val;
+                            });
+                            unityViewController.send(
+                              'modely',
+                              'SetCarSpeed',
+                              '${val.toInt()}',
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  Card(
+                    color: isDarkTheme ? Color.fromRGBO(33, 33, 33, 1) : Color.fromRGBO(245, 245, 245, 1),
+                    child: Wrap(
+                      children: [
+                        RaisedButton(
+                          child: Text('Fahrertür öffnen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'modely',
+                              'DoorOpened',
+                              'driverfrontdoor:true',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Fahrertür schließen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'modely',
+                              'DoorOpened',
+                              'driverfrontdoor:false',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Hintere Fahrertür öffnen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'modely',
+                              'DoorOpened',
+                              'driverreardoor:true',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Hintere Fahrertür schließen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'modely',
+                              'DoorOpened',
+                              'driverreardoor:false',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Beifahrertür öffnen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'modely',
+                              'DoorOpened',
+                              'passengerfrontdoor:true',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Beifahrertür schließen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'modely',
+                              'DoorOpened',
+                              'passengerfrontdoor:false',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Hintere Beifahrertür öffnen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'modely',
+                              'DoorOpened',
+                              'passengerreardoor:true',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Hintere Beifahrertür schließen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'modely',
+                              'DoorOpened',
+                              'passengerreardoor:false',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Trunk öffnen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'modely',
+                              'DoorOpened',
+                              'trunk:true',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Trunk schließen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'modely',
+                              'DoorOpened',
+                              'trunk:false',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Frunk öffnen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'modely',
+                              'DoorOpened',
+                              'frunk:true',
+                            );
+                          },
+                        ),
+                        RaisedButton(
+                          child: Text('Frunk schließen'),
+                          onPressed: () {
+                            unityViewController.send(
+                              'modely',
+                              'DoorOpened',
+                              'frunk:false',
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -407,6 +1096,22 @@ class _UnityViewPageState extends State<UnityViewPage> {
     setState(() {
       unityViewController = controller;
     });
+
+    switch (selectedModel) {
+      case 'model3':
+        if (!model3initialized) controller.send('Loader', 'loadScene', selectedModel);
+        break;
+      case 'models':
+        if (!modelsinitialized) controller.send('Loader', 'loadScene', selectedModel);
+        break;
+      case 'modelx':
+        if (!modelxinitialized) controller.send('Loader', 'loadScene', selectedModel);
+        break;
+      case 'modely':
+        if (!modelyinitialized) controller.send('Loader', 'loadScene', selectedModel);
+        break;
+      default:
+    }
   }
 
   void onUnityViewReattached(UnityViewController controller) {
