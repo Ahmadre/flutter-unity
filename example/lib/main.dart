@@ -1099,16 +1099,16 @@ class _UnityViewPageState extends State<UnityViewPage> {
 
     switch (selectedModel) {
       case 'model3':
-        if (!model3initialized) controller.send('Loader', 'loadScene', selectedModel);
+        controller.send('Loader', 'loadScene', 'model3');
         break;
       case 'models':
-        if (!modelsinitialized) controller.send('Loader', 'loadScene', selectedModel);
+        controller.send('Loader', 'loadScene', 'models');
         break;
       case 'modelx':
-        if (!modelxinitialized) controller.send('Loader', 'loadScene', selectedModel);
+        controller.send('Loader', 'loadScene', 'modelx');
         break;
       case 'modely':
-        if (!modelyinitialized) controller.send('Loader', 'loadScene', selectedModel);
+        controller.send('Loader', 'loadScene', 'modely');
         break;
       default:
     }
@@ -1119,6 +1119,22 @@ class _UnityViewPageState extends State<UnityViewPage> {
     setState(() {
       unityViewController = controller;
     });
+
+    switch (selectedModel) {
+      case 'model3':
+        controller.send('Loader', 'loadScene', 'model3');
+        break;
+      case 'models':
+        controller.send('Loader', 'loadScene', 'models');
+        break;
+      case 'modelx':
+        controller.send('Loader', 'loadScene', 'modelx');
+        break;
+      case 'modely':
+        controller.send('Loader', 'loadScene', 'modely');
+        break;
+      default:
+    }
   }
 
   void onUnityViewMessage(UnityViewController controller, String message) {
