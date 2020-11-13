@@ -119,6 +119,21 @@ class _UnityViewPageState extends State<UnityViewPage> {
       body: PageView(
         pageSnapping: true,
         onPageChanged: (i) {
+          switch (selectedModel) {
+            case 'model3':
+              unityViewController.send('Loader', 'loadScene', 'model3');
+              break;
+            case 'models':
+              unityViewController.send('Loader', 'loadScene', 'models');
+              break;
+            case 'modelx':
+              unityViewController.send('Loader', 'loadScene', 'modelx');
+              break;
+            case 'modely':
+              unityViewController.send('Loader', 'loadScene', 'modely');
+              break;
+            default:
+          }
           switch (i) {
             case 0:
               setState(() {
@@ -1119,22 +1134,6 @@ class _UnityViewPageState extends State<UnityViewPage> {
     setState(() {
       unityViewController = controller;
     });
-
-    switch (selectedModel) {
-      case 'model3':
-        controller.send('Loader', 'loadScene', 'model3');
-        break;
-      case 'models':
-        controller.send('Loader', 'loadScene', 'models');
-        break;
-      case 'modelx':
-        controller.send('Loader', 'loadScene', 'modelx');
-        break;
-      case 'modely':
-        controller.send('Loader', 'loadScene', 'modely');
-        break;
-      default:
-    }
   }
 
   void onUnityViewMessage(UnityViewController controller, String message) {
