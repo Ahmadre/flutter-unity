@@ -1,3 +1,7 @@
+## 0.2.1+5
+
+* Update unity_export_transmogrify to support Unity 2020.x+.
+
 ## 0.2.1+4
 
 * Make minor changes to Unity initialization (iOS).

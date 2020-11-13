@@ -46,6 +46,13 @@ void main() {
         .replaceAll(RegExp(r'<application .*>'), '<application>')
         .replaceAll(RegExp(r'\s*<activity .*>(?:\s|\S)*<\/activity>'), '');
     file.writeAsStringSync(contents);
+
+    /* build.gradle patch for Unity 2020.x+ */
+
+    file = File('$unityExportPath/build.gradle');
+    contents = file.readAsStringSync();
+    contents = contents.replaceAll(RegExp(r'unityLibrary'), 'unityExport');
+    file.writeAsStringSync(contents);
   } catch (e) {
     print(e);
   }
