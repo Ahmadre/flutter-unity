@@ -66,11 +66,7 @@ class _UnityViewPageState extends State<UnityViewPage> {
   double _sliderValue = 0.0;
   double _speed = 0.0;
   bool isDarkTheme = true;
-  String selectedModel = 'model3';
-  bool model3initialized = false;
-  bool modelsinitialized = false;
-  bool modelxinitialized = false;
-  bool modelyinitialized = false;
+  String selectedModel = 'Prototype';
   bool isCharging = false;
 
   @override
@@ -119,52 +115,20 @@ class _UnityViewPageState extends State<UnityViewPage> {
       body: PageView(
         pageSnapping: true,
         onPageChanged: (i) {
-          switch (selectedModel) {
-            case 'model3':
+          switch (i) {
+            case 0:
               unityViewController.send('Loader', 'loadScene', 'model3');
               break;
-            case 'models':
+            case 1:
               unityViewController.send('Loader', 'loadScene', 'models');
               break;
-            case 'modelx':
+            case 2:
               unityViewController.send('Loader', 'loadScene', 'modelx');
               break;
-            case 'modely':
+            case 3:
               unityViewController.send('Loader', 'loadScene', 'modely');
               break;
             default:
-          }
-          switch (i) {
-            case 0:
-              setState(() {
-                model3initialized = true;
-                selectedModel = 'model3';
-              });
-              break;
-            case 1:
-              setState(() {
-                modelsinitialized = true;
-                selectedModel = 'models';
-              });
-              break;
-            case 2:
-              setState(() {
-                modelxinitialized = true;
-                selectedModel = 'modelx';
-              });
-              break;
-            case 3:
-              setState(() {
-                modelyinitialized = true;
-                selectedModel = 'modely';
-              });
-              break;
-            default:
-              setState(() {
-                model3initialized = true;
-                selectedModel = 'model3';
-              });
-              break;
           }
         },
         controller: pageController,
@@ -208,36 +172,6 @@ class _UnityViewPageState extends State<UnityViewPage> {
                       onCreated: onUnityViewCreated,
                       onReattached: onUnityViewReattached,
                       onMessage: onUnityViewMessage,
-                    ),
-                  ),
-                  Card(
-                    child: Column(
-                      children: [
-                        const Text(
-                          'Rotation Speed:',
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Slider.adaptive(
-                          min: -10.0,
-                          max: 10.0,
-                          divisions: 20,
-                          label: _sliderValue.toInt().toString(),
-                          value: _sliderValue,
-                          onChanged: (val) {
-                            setState(() {
-                              _sliderValue = val;
-                            });
-                            unityViewController.send(
-                              'model3',
-                              'SetRotationSpeedY',
-                              '$val',
-                            );
-                          },
-                        ),
-                      ],
                     ),
                   ),
                   Card(
@@ -447,36 +381,6 @@ class _UnityViewPageState extends State<UnityViewPage> {
                     child: Column(
                       children: [
                         const Text(
-                          'Rotation Speed:',
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Slider.adaptive(
-                          min: -10.0,
-                          max: 10.0,
-                          divisions: 20,
-                          label: _sliderValue.toInt().toString(),
-                          value: _sliderValue,
-                          onChanged: (val) {
-                            setState(() {
-                              _sliderValue = val;
-                            });
-                            unityViewController.send(
-                              'models',
-                              'SetRotationSpeedY',
-                              '$val',
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  Card(
-                    child: Column(
-                      children: [
-                        const Text(
                           'Car Speed:',
                           textAlign: TextAlign.center,
                         ),
@@ -674,36 +578,6 @@ class _UnityViewPageState extends State<UnityViewPage> {
                       onCreated: onUnityViewCreated,
                       onReattached: onUnityViewReattached,
                       onMessage: onUnityViewMessage,
-                    ),
-                  ),
-                  Card(
-                    child: Column(
-                      children: [
-                        const Text(
-                          'Rotation Speed:',
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Slider.adaptive(
-                          min: -10.0,
-                          max: 10.0,
-                          divisions: 20,
-                          label: _sliderValue.toInt().toString(),
-                          value: _sliderValue,
-                          onChanged: (val) {
-                            setState(() {
-                              _sliderValue = val;
-                            });
-                            unityViewController.send(
-                              'modelx',
-                              'SetRotationSpeedY',
-                              '$val',
-                            );
-                          },
-                        ),
-                      ],
                     ),
                   ),
                   Card(
@@ -913,36 +787,6 @@ class _UnityViewPageState extends State<UnityViewPage> {
                     child: Column(
                       children: [
                         const Text(
-                          'Rotation Speed:',
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Slider.adaptive(
-                          min: -10.0,
-                          max: 10.0,
-                          divisions: 20,
-                          label: _sliderValue.toInt().toString(),
-                          value: _sliderValue,
-                          onChanged: (val) {
-                            setState(() {
-                              _sliderValue = val;
-                            });
-                            unityViewController.send(
-                              'modely',
-                              'SetRotationSpeedY',
-                              '$val',
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  Card(
-                    child: Column(
-                      children: [
-                        const Text(
                           'Car Speed:',
                           textAlign: TextAlign.center,
                         ),
@@ -1106,39 +950,23 @@ class _UnityViewPageState extends State<UnityViewPage> {
   }
 
   void onUnityViewCreated(UnityViewController controller) {
-    print('onUnityViewCreated');
+    debugPrint('onUnityViewCreated');
+
+    controller.send('Loader', 'loadScene', 'model3');
 
     setState(() {
       unityViewController = controller;
     });
-
-    switch (selectedModel) {
-      case 'model3':
-        controller.send('Loader', 'loadScene', 'model3');
-        break;
-      case 'models':
-        controller.send('Loader', 'loadScene', 'models');
-        break;
-      case 'modelx':
-        controller.send('Loader', 'loadScene', 'modelx');
-        break;
-      case 'modely':
-        controller.send('Loader', 'loadScene', 'modely');
-        break;
-      default:
-    }
   }
 
   void onUnityViewReattached(UnityViewController controller) {
-    print('onUnityViewReattached');
+    debugPrint('onUnityViewReattached');
     setState(() {
       unityViewController = controller;
     });
   }
 
   void onUnityViewMessage(UnityViewController controller, String message) {
-    print('onUnityViewMessage');
-
-    print(message);
+    debugPrint('onUnityViewMessage');
   }
 }
