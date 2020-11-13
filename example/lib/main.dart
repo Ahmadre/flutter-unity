@@ -952,10 +952,9 @@ class _UnityViewPageState extends State<UnityViewPage> {
   void onUnityViewCreated(UnityViewController controller) {
     debugPrint('onUnityViewCreated');
 
-    controller.send('Loader', 'loadScene', 'model3');
-
     setState(() {
       unityViewController = controller;
+      controller.send('Loader', 'loadScene', 'model3');
     });
   }
 
